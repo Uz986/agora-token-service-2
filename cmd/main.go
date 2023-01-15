@@ -5,6 +5,12 @@ import (
     "github.com/AgoraIO-Community/agora-token-service/service"
 )
 
+func main() {
+    s := service.NewService()
+    http.HandleFunc("/", CORS(s.Start))
+    http.ListenAndServe(":8080", nil)
+}
+
 func CORS(next http.HandlerFunc) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
         w.Header().Add("Access-Control-Allow-Origin", "*")
@@ -19,14 +25,4 @@ func CORS(next http.HandlerFunc) http.HandlerFunc {
 
         next(w, r)
     }
-}
-
-func main() {
-    s := service.NewService()
-
-    // Stop is called on another thread, but waits for an interrupt
-    go s.Stop()
-
-    http.HandleFunc("/", CORS(s.Start))
-    http.ListenAndServe(":3000", nil)
 }
