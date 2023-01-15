@@ -22,9 +22,9 @@ func CORS(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func main() {
-	s := service.NewService()
-	// Stop is called on another thread, but waits for an interrupt
-	go s.Stop()
-	http.HandleFunc("/", CORS(s.Start))
-	http.ListenAndServe(":8080", nil)
+	http.HandleFunc("/", CORS(mainHandler))
+    s := service.NewService()
+    // Stop is called on another thread, but waits for an interrupt
+    go s.Stop()
+    s.Start()
 }
