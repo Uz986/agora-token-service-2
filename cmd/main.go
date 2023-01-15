@@ -2,14 +2,8 @@ package main
 
 import (
     "net/http"
-    "github.com/AgoraIO-Community/agora-token-service/service"
+	"github.com/AgoraIO-Community/agora-token-service/service"
 )
-
-func main() {
-    s := service.NewService()
-    http.HandleFunc("/", CORS(s.Start))
-    http.ListenAndServe(":8080", nil)
-}
 
 func CORS(next http.HandlerFunc) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
@@ -25,4 +19,16 @@ func CORS(next http.HandlerFunc) http.HandlerFunc {
 
         next(w, r)
     }
+}
+
+func startWithCORS(w http.ResponseWriter, r *http.Request) {
+    s := service.NewService()
+    // Stop is called on another thread, but waits for an interrupt
+    go s.Stop()
+    s.Start()
+}
+
+func main() {
+    http.HandleFunc("/", CORS(startWithCORS))
+    http.ListenAndServe(":8080", nil)
 }
