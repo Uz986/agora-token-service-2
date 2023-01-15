@@ -3,28 +3,28 @@ package main
 import (
 	"github.com/AgoraIO-Community/agora-token-service/service"
 	"net/http"
-	"github.com/rs/cors"
 )
 
+func CORS(next http.HandlerFunc) http.HandlerFunc {
+  return func(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Access-Control-Allow-Origin", "*")
+    w.Header().Add("Access-Control-Allow-Credentials", "true")
+    w.Header().Add("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+    w.Header().Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+
+    if r.Method == "OPTIONS" {
+        http.Error(w, "No Content", http.StatusNoContent)
+        return
+    }
+
+    next(w, r)
+  }
+}
+
 func main() {
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: true,
-		MaxAge:           300,
-	})
-	
-	http.HandleFunc("/", c.HandlerFunc(myHandler))
-	http.ListenAndServe(":8080", nil)
-	
 	s := service.NewService()
 	// Stop is called on another thread, but waits for an interrupt
 	go s.Stop()
-	s.Start()
-}
-
-func myHandler(w http.ResponseWriter, r *http.Request) {
-	// Your handler code here
+	http.HandleFunc("/", CORS(s.Start))
+	http.ListenAndServe(":8080", nil)
 }
