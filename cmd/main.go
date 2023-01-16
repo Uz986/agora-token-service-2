@@ -5,8 +5,7 @@ import (
 	"net/http"
 )
 
-func CORS(next http.HandlerFunc) http.HandlerFunc {
-  return func(w http.ResponseWriter, r *http.Request) {
+func startWithCORS(w http.ResponseWriter, r *http.Request) {
     w.Header().Add("Access-Control-Allow-Origin", "*")
     w.Header().Add("Access-Control-Allow-Credentials", "true")
     w.Header().Add("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
@@ -17,13 +16,13 @@ func CORS(next http.HandlerFunc) http.HandlerFunc {
         return
     }
 
-    next(w, r)
-  }
+    s.Start()
 }
 
 func main() {
 	s := service.NewService()
 	go s.Stop()
-	http.HandleFunc("/", CORS(s.Start))
-	http.ListenAndServe(":8080", nil)
+	http.HandleFunc("/", CORS(startWithCORS))
+
+	
 }
