@@ -30,5 +30,5 @@ func startWithCORS(w http.ResponseWriter, r *http.Request) {
 
 func main() {
     http.HandleFunc("/", CORS(startWithCORS))
-    http.ListenAndServe(":3000", nil)
+    http.ListenAndServe(":8080", nil)
 }
